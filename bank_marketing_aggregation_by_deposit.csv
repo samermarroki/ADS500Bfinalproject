@@ -1,0 +1,3 @@
+deposit,customers,avg_age,avg_balance,avg_duration,avg_campaign_contacts,conversion_rate_previous_success
+no,39922,40.73,1303.71,221.18,2.85,0.01
+yes,5289,41.56,1804.27,537.29,2.14,0.18
