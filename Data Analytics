@@ -1,1 +1,130 @@
+import pandas as pd
+import numpy as np
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+sns.set(style="whitegrid")
+plt.rcParams['figure.figsize'] = (10,6)
+
+
+
+
+df = pd.read_csv('../data/bank_marketing.csv')
+
+print("Dataset Shape:", df.shape)
+df.head()
+
+
+
+
+print("\nMissing Values:\n", df.isnull().sum())
+
+
+
+print("New Shape:", df.shape)
+
+
+
+
+
+
+sns.countplot(x='y', data=df)
+plt.title("Subscription Outcome Distribution")
+plt.show()
+
+
+
+df.hist(bins=30, edgecolor='black')
+plt.suptitle("Feature Distributions")
+plt.show()
+
+
+
+df_encoded = df.copy()
+le = LabelEncoder()
+
+for col in df_encoded.select_dtypes(include='object').columns:
+    df_encoded[col] = le.fit_transform(df_encoded[col])
+
+
+
+corr = df_encoded.corr()
+
+sns.heatmap(corr, cmap='coolwarm', center=0)
+plt.title("Correlation Heatmap")
+plt.show()
+
+
+print(corr['y'].sort_values(ascending=False))
+
+
+le = LabelEncoder()
+
+for col in df.select_dtypes(include='object').columns:
+    df[col] = le.fit_transform(df[col])
+
+
+X = df.drop('y', axis=1)
+y = df['y']
+
+
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.2, random_state=42
+)
+
+
+
+lr = LogisticRegression(max_iter=1000)
+lr.fit(X_train, y_train)
+
+y_pred_lr = lr.predict(X_test)
+
+print("Logistic Regression Accuracy:", accuracy_score(y_test, y_pred_lr))
+
+
+
+cm = confusion_matrix(y_test, y_pred_lr)
+
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.title("Logistic Regression Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+
+
+print(classification_report(y_test, y_pred_lr))
+
+
+
+dt = DecisionTreeClassifier(max_depth=5, random_state=42)
+dt.fit(X_train, y_train)
+
+y_pred_dt = dt.predict(X_test)
+
+print("Decision Tree Accuracy:", accuracy_score(y_test, y_pred_dt))
+
+
+
+importances = dt.feature_importances_
+features = X.columns
+
+feat_imp = pd.Series(importances, index=features).sort_values(ascending=False)
+
+feat_imp.plot(kind='bar')
+plt.title("Feature Importance")
+plt.show()
+
