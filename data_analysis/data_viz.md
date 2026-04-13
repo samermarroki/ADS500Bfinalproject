@@ -1,36 +1,8 @@
-# Project Overview
+## Overall EDA Findings
 
-This project explores client data from a bank marketing campaign to understand the factors that influence whether a customer subscribes to a **term deposit**. 
+### Overview
 
-A **term deposit** is a financial product that requires placing funds into a fixed-term account for specified period in exchange for guaranteed interest.
-
-# Bank Marketing Data Preprocessing
-
-## Data Import
-
-The dataset used in this project is the Bank Marketing dataset, stored as a CSV file. Because the file is semicolon-delimited rather than comma-delimited, it is imported in Python using `pandas.read_csv()` with `sep=';'`. After loading the file, the dataset is inspected to confirm its dimensions, column names, data types, and the presence of missing values. This initial profiling step helps verify that the data has been read correctly and provides a clear overview of the structure of the dataset before any preprocessing is performed.
-
-The imported dataset contains 45,211 rows and 17 columns. The variables include a mix of numeric and categorical features, such as customer age, balance, contact type, campaign information, and the target variable `deposit`. During the import review, both standard missing values and placeholder values such as `unknown` are identified, since these require special handling during preprocessing.
-
-## Data Preprocessing
-
-The preprocessing stage begins by standardizing the dataset structure. Column names are cleaned by converting them to lowercase and replacing spaces with underscores to make them easier to reference in code. Categorical text values are stripped of extra spaces and converted to lowercase to ensure consistency. Duplicate rows are checked and removed if found.
-
-Missing data is then handled using a combination of imputation and category replacement. For the numeric variable `age`, missing values are filled using the median age within each job category, followed by the overall median where needed. For categorical variables such as `job`, `education`, and `default`, missing values are replaced with the most frequent category. Placeholder values such as `unknown` are treated as missing in selected columns, while indicator flags are created to preserve the information that those values were originally unknown.
-
-After cleaning, several transformation techniques are applied to improve the usefulness of the dataset. New features are constructed, including indicators for whether a client was previously contacted, whether the client has any loan, and ratios such as balance per contact and duration per contact. The `month` variable is converted into a numerical month index and grouped into calendar quarters. Need-based discretization is also performed by grouping `age`, `balance`, and `campaign` values into meaningful bands. In addition, min-max normalization is applied to selected numeric variables so they can be compared on a common scale.
-
-Finally, redundant information is reduced by removing columns that have been replaced by more informative derived features. For example, the original textual `month` column is removed after creating `month_num`, and the original `pdays` variable is removed after deriving a cleaner previous-contact feature. The cleaned, transformed, and reduced datasets are then saved as separate output files for further analysis or modeling.
-
-## Project Files
-
-- `bank_marketing_preprocessing.py`: end-to-end preprocessing script
-- `bank_marketing_preprocessing_notebook.ipynb`: notebook version of the workflow
-- `bank_marketing_outputs/`: generated cleaned, transformed, reduced, and aggregated CSV files
-
----
-
-# Exploratory Data Analysis
+This project explores client data from a bank marketing campaign to understand the factors that influence whether a customer subscribes to a **term deposit**. A **term deposit** is a financial product that requires placing funds into a fixed-term account for specified period in exchange for guaranteed interest.
 
 The focus of the exploratory data analysis is to understand data patterns and uncover insights to guide feature selection by: 
 
@@ -39,15 +11,15 @@ The focus of the exploratory data analysis is to understand data patterns and un
 - Detecting data quality issues
 - Highlighting key predictors for modeling
 
-## Target Variable
+### Target Variable
 
-![Target Variable](/images/target_variable_deposit_chart.png)
+![Target Variable](../images/target_variable_deposit_chart.png)
 
 Binary variable: `deposit` 
 - Yes -> Client subscribed to a term deposit
 - No -> Client did not subscribe
 
-### Key Insight
+#### Key Insight
 `deposit`  is highly imbalanced
 
 | **Class** | **Count** | **Percentage** |
@@ -58,9 +30,12 @@ Binary variable: `deposit`
 
 ---
 
-## Numerical Variables Distribution
+### Numerical Variables Distribution
 
-![Numerical Variable Distributions](/images/distribution_numerical_variables.png)
+![Numerical Variable Distributions](../images/distribution_numerical_variables.png)
+
+#### Key Insights
+
 
 - `age`: Roughly normally distributed with a slight right skew toward older ages, however, most clients fall between 25 and 60 years old.
 	- Mean: 41 | Median: 39
@@ -89,9 +64,12 @@ Binary variable: `deposit`
 
 ---
 
-## Binary Variables
+### Binary Variables
 
-![Binary Variables](/images/binary_variables_barchart.png)
+![Binary Variables](../images/binary_variables_barchart.png)
+
+#### Key Insights
+
 
 - Most clients were never previously contacted
 	- `was_previously_contacted` and `poutcome_was_unknown` are  inversely correlated. Before modeling, one of these variables should be dropped to eliminate redundancy.
@@ -103,9 +81,10 @@ Binary variable: `deposit`
 
 ---
 
-## Categorical Variables
+### Categorical Variables
 
-![Categorical Variables ](/images/categorical_variables_barchart.png)
+![Categorical Variables ](../images/categorical_variables_barchart.png)
+#### Key Insights 
 
 - **Previous Campaign Outcome**:
 	- Majority missing
@@ -135,19 +114,20 @@ Binary variable: `deposit`
 
 ---
 
-## Bivariate & Multivariate Patterns
+### Bivariate & Multivariate Patterns
 
+#### Point Plots Key Insights 
 
-### **Age by Marital Status, Deposit and Previous Outcome**
+**Age by Marital Status, Deposit and Previous Outcome**
 
 - Older individuals, especially married/divorced, are more likely to subscribe
 - Possible interaction predictor between **age and marital status**: older married and divorced clients subscribe at notably higher rates than younger single clients.
 
 Clients aged 65+ have the highest subscription rates across all marital status, education, and job categories. The 26–51 age group consistently show the lowest subscription rates, possibly reflecting financial commitments such as mortgages and dependents.
 
-![Point Plot](/images/age_marital_deposit_pplot.png)
+![Point Plot](../images/age_marital_deposit_pplot.png)
 
-### **Age by Education, Deposit and Previous Outcome**
+**Age and Education**
 
 - Strong effect for **primary education**: Subscribers are significantly older than non-subscribers
 - Minimal effect for higher education groups
@@ -157,7 +137,7 @@ Clients with secondary and tertiary education are both clustered around age 40, 
 ![Point Plot](/images/age_education_deposit_pplot.png)
 
 
-### **Call duration and subscription**  
+**Call duration and subscription:**  
 
 Across all demographic groups, non-subscribers show nearly identical call durations, approximately 3 minutes, while subscribers consistently have much longer calls, 8 to 10 minutes. The inclusion of this variable may lead to signs of overfitting.
 
@@ -165,7 +145,9 @@ Across all demographic groups, non-subscribers show nearly identical call durati
 
 
 ---
-## Correlation Matrix Insights
+### Correlation Matrix Insights
+
+![Correlation Matrix](../images/correlation_matrix.png)
 
 **Strong Predictors**
 
@@ -176,17 +158,17 @@ Across all demographic groups, non-subscribers show nearly identical call durati
 
 **Weak Linear Correlation**
 
-- `age`, `balance`, `education`, `marital_status`
+-`age`, `balance`, `education`, `marital_status`
 
 Note: interaction terms between these features may be included
 
-![Correlation Matrix](/images/correlation_matrix.png)
 
 ---
 
-## Heatmaps Insights 
+### Heatmaps Insights 
 
-### **Age-Based Patterns**
+
+**Age-Based Patterns**
 
 - **65+ clients** consistently show the highest subscription rates, as indicated by  brighter colors. This trend remains consistent across different marital status and education levels, indicating that age is the main factor influencing this group.
 
@@ -196,18 +178,18 @@ Note: interaction terms between these features may be included
 
 ![Heatmap](/images/heatmap_age_marital_education.png)
 
-### **Campaign Contact Frequency** 
+**Campaign Contact Frequency** 
 - Higher contact frequency means lower subscription rates
 - Best results occur with **single contact**
 
 ![Heatmap](/images/heatmap_campaign_marital_education.png)
 
-### **Job-Based Insights**
+**Job-Based Insights**
 - Highest subscription rate:
   - **Retired**
   - **Students**
 
-### **Campaign contact fatigue:** 
+**Campaign contact fatigue:** 
 
 - Subscription rates decline rapidly as the number of campaign contacts increases, regardless  of marital status, education, or age group.  
 Clients contacted only once show the highest subscription rates across all demographic segments. Those contacted 7+ times show the lowest subscription rates, suggesting that repeated contact is either ineffective or counterproductive.
@@ -215,11 +197,12 @@ Clients contacted only once show the highest subscription rates across all demog
 ![Heatmapt](/images/heatmap_job_age_campaign.png)
 
 
-### **Previous Campaign Outcome by Age and Education:**  
+**Previous Campaign Outcome by Age and Education:**  
 
 A prior successful campaign outcome is a strong and consistent predictor. The effect persists across all combinations of marital status and education, with subscription rates of approximately 61 to 66%. 
 
 ![Heatmap](/images/heatmap_poutcome_marital_education.png)
+
 
 
 ---
